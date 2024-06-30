@@ -1,0 +1,39 @@
+<html lang='id'>
+  <head>
+    <meta charset='UTF-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+    <title>Verifikasi Email Anda - FishSnap</title>
+    <style>
+      body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin:
+      0; padding: 0; } .email-container { background-color: #ffffff; width: 80%;
+      max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd;
+      border-radius: 5px; } .email-header { text-align: center;
+      background-color: #0284c7; color: #ffffff; padding: 10px; border-radius:
+      5px 5px 0 0; } .email-body { padding: 20px; } .email-footer { text-align:
+      center; color: #777; font-size: 12px; padding: 10px; border-top: 1px solid
+      #ddd; } .verify-button { display: block; width: 200px; margin: 20px auto;
+      padding: 10px; background-color: #0284c7; color: #ffffff; text-align:
+      center; text-decoration: none; border-radius: 5px; } .verify-button:hover
+      { background-color: #026899; }
+    </style>
+  </head>
+  <body>
+    <div class='email-container'>
+      <div class='email-header'>
+        <h1>FishSnap</h1>
+      </div>
+      <div class='email-body'>
+        <h2>Halo, {{name}}!</h2>
+        <p>Terima kasih telah mendaftar di FishSnap. Silakan klik tombol di
+          bawah ini untuk memverifikasi alamat email Anda.</p>
+        <a href='{{verificationLink}}' class='verify-button'>Verifikasi Email</a>
+        <p>Jika tombol di atas tidak berfungsi, salin dan tempel tautan berikut
+          ke browser web Anda:</p>
+        <p>{{verificationLink}}</p>
+      </div>
+      <div class='email-footer'>
+        <p>&copy; {{currentYear}} FishSnap. Semua hak dilindungi.</p>
+      </div>
+    </div>
+  </body>
+</html>
