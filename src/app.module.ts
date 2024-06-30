@@ -7,6 +7,10 @@ import { MomentModule } from '@ccmos/nestjs-moment';
 import { MailModule } from './mail/mail.module';
 import { GatewayModule } from './gateway/gateway.module';
 import { UserModule } from './user/user.module';
+import { LessonModule } from './lesson/lesson.module';
+import { UnitLessonModule } from './unit-lesson/unit-lesson.module';
+import { PracticeModule } from './practice/practice.module';
+import { QuizModule } from './quiz/quiz.module';
 
 @Module({
   imports: [
@@ -20,7 +24,11 @@ import { UserModule } from './user/user.module';
     PrismaModule,
     MailModule,
     GatewayModule,
-    UserModule
+    UserModule,
+    LessonModule,
+    UnitLessonModule,
+    PracticeModule,
+    QuizModule
   ],
   controllers: [],
   providers: [],

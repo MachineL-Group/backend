@@ -4,9 +4,9 @@ import { MomentModule } from '@ccmos/nestjs-moment';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from '../prisma/prisma.module';
 import { HelperModule } from '../helpers/helper.module';
-import { LessonService } from './lesson.service';
-import { LessonRepository } from './lesson.repository';
-import { LessonController } from './lesson.controller';
+import { PracticeService } from './practice.service';
+import { PracticeRepository } from './practice.repository';
+import { PracticeController } from './practice.controller';
 
 @Module({
     imports: [
@@ -16,8 +16,8 @@ import { LessonController } from './lesson.controller';
         ConfigModule,
         HelperModule,
     ],
-    providers: [LessonService, LessonRepository],
-    controllers: [LessonController],
-    exports: [LessonService, LessonRepository],
+    providers: [PracticeService, PracticeRepository],
+    controllers: [PracticeController],
+    exports: [PracticeService, PracticeRepository],
 })
-export class LessonModule { }
+export class PracticeModule { }

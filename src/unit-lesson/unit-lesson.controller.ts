@@ -13,12 +13,12 @@ import {
     Headers,
 } from '@nestjs/common';
 import { HttpHelper } from '../helpers/http-helper';
-import { LessonService } from './lesson.service';
+import { UnitLessonService } from './unit-lesson.service';
 
-@Controller('lesson')
-export class LessonController {
+@Controller('unit-lesson')
+export class UnitLessonController {
     constructor(
-        private readonly lessonService: LessonService,
+        private readonly unitLessonService: UnitLessonService,
         private readonly httpHelper: HttpHelper,
     ) { }
 

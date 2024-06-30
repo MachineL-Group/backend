@@ -3,6 +3,6 @@ import { DbService } from '../../db.service';
 import { Prisma, PrismaClient } from '@prisma/client';
 
 @Injectable()
-export class LessonQuery extends DbService {
+export class PracticeQuery extends DbService {
 
 }
