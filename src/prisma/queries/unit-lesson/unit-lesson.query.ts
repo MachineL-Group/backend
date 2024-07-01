@@ -16,6 +16,14 @@ export class UnitLessonQuery extends DbService {
         })
     }
 
+    async findBySlug(slug: string) {
+        return await this.prisma.unitLesson.findUnique({
+            where: {
+                slug
+            }
+        })
+    }
+
     async create(dto: Prisma.UnitLessonCreateInput) {
         return await this.prisma.unitLesson.create({
             data: dto

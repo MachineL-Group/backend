@@ -55,6 +55,7 @@ export class LessonRepository {
         }
         return await this.lessonQuery.updateById(id, {
             title: dto.title,
+            slug: slug,
             number: dto.number
         })
     }

@@ -7,6 +7,7 @@ import { HelperModule } from '../helpers/helper.module';
 import { UnitLessonService } from './unit-lesson.service';
 import { UnitLessonRepository } from './unit-lesson.repository';
 import { UnitLessonController } from './unit-lesson.controller';
+import { LessonModule } from '../lesson/lesson.module';
 
 @Module({
     imports: [
@@ -15,6 +16,7 @@ import { UnitLessonController } from './unit-lesson.controller';
         MomentModule,
         ConfigModule,
         HelperModule,
+        LessonModule
     ],
     providers: [UnitLessonService, UnitLessonRepository],
     controllers: [UnitLessonController],
