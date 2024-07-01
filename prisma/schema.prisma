@@ -101,7 +101,7 @@ model Lesson {
   id       String       @id @default(auto()) @map("_id") @db.ObjectId
   number   Int
   title    String
-  slug     String
+  slug     String       @unique
   units    UnitLesson[]
   practice Practice[]
   quiz     Quiz[]
@@ -110,7 +110,7 @@ model Lesson {
 model UnitLesson {
   id       String @id @default(auto()) @map("_id") @db.ObjectId
   title    String
-  slug     String
+  slug     String @unique
   idLesson String @db.ObjectId
   lesson   Lesson @relation(fields: [idLesson], references: [id])
   content  Json[]
@@ -122,6 +122,7 @@ model UnitLesson {
 model Practice {
   id       String @id @default(auto()) @map("_id") @db.ObjectId
   idLesson String @db.ObjectId
+  slug     String @unique
   signs    Json[]
   question Json[]
 
@@ -135,6 +136,7 @@ model Practice {
 model Quiz {
   id       String @id @default(auto()) @map("_id") @db.ObjectId
   idLesson String @db.ObjectId
+  slug     String @unique
   signs    Json[]
   question Json[]
 
