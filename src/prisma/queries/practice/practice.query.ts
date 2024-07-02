@@ -16,6 +16,14 @@ export class PracticeQuery extends DbService {
         })
     }
 
+    async findBySlug(slug: string) {
+        return await this.prisma.practice.findUnique({
+            where: {
+                slug
+            }
+        })
+    }
+
     async create(dto: Prisma.PracticeCreateInput) {
         return await this.prisma.practice.create({
             data: dto
