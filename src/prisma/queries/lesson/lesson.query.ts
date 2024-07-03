@@ -6,7 +6,11 @@ import { Prisma, PrismaClient } from '@prisma/client';
 export class LessonQuery extends DbService {
 
     async findAll() {
-        return await this.prisma.lesson.findMany();
+        return await this.prisma.lesson.findMany({
+            include: {
+                units: true
+            }
+        });
     }
 
     async findById(id: string) {
