@@ -43,11 +43,11 @@ export class UnitLessonRepository {
     async createUnitLesson(dto: CreateUnitLessonDto) {
         const slug = generateSlug(dto.title);
         await this.checkSlugExistAndThrow(slug);
-        await this.lessonRepository.findLessonByIdOrThrow(dto.idLesson);
+        const lesson = await this.lessonRepository.findLessonByIdOrThrow(dto.slugLesson);
         return await this.unitLessonQuery.create({
             lesson: {
                 connect: {
-                    id: dto.idLesson
+                    id: lesson.id
                 }
             },
             title: dto.title,
@@ -62,14 +62,14 @@ export class UnitLessonRepository {
         if (slug && slug !== unitLesson.slug) {
             await this.checkSlugExistAndThrow(slug);
         }
-        if (dto.idLesson) {
-            await this.lessonRepository.findLessonByIdOrThrow(dto.idLesson);
+        if (dto.slugLesson) {
+            var lesson = await this.lessonRepository.findLessonByIdOrThrow(dto.slugLesson);
         }
         return await this.unitLessonQuery.updateById(id, {
             title: dto.title,
             slug: slug,
             content: dto.content ? JSON.parse(JSON.stringify(dto.content)) as Prisma.JsonArray : undefined,
-            ...(dto.idLesson ? { lesson: { connect: { id: dto.idLesson } } } : {})
+            ...(lesson ? { lesson: { connect: { id: lesson.id } } } : {})
         })
     }
 

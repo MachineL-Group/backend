@@ -7,6 +7,7 @@ import { HelperModule } from '../helpers/helper.module';
 import { QuizService } from './quiz.service';
 import { QuizRepository } from './quiz.repository';
 import { QuizController } from './quiz.controller';
+import { LessonModule } from '../lesson/lesson.module';
 
 @Module({
     imports: [
@@ -15,6 +16,7 @@ import { QuizController } from './quiz.controller';
         MomentModule,
         ConfigModule,
         HelperModule,
+        LessonModule
     ],
     providers: [QuizService, QuizRepository],
     controllers: [QuizController],

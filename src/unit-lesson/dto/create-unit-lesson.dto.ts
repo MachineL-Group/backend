@@ -1,15 +1,14 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { Type } from 'class-transformer';
 import { ArrayNotEmpty, IsArray, IsInt, IsNotEmpty, IsString, IsUrl, ValidateNested } from 'class-validator';
-import { IsObjectId } from '../../helpers/decorator/isValidObjectId.decorator';
 export class CreateUnitLessonDto {
     @IsNotEmpty()
     @IsString()
     title: string;
 
     @IsNotEmpty()
-    @IsObjectId()
-    idLesson: string;
+    @IsString()
+    slugLesson: string;
 
     @Type(() => ContentDto)
     @ValidateNested()

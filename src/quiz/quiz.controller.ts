@@ -11,9 +11,15 @@ import {
     Query,
     UseGuards,
     Headers,
+    BadRequestException,
 } from '@nestjs/common';
 import { HttpHelper } from '../helpers/http-helper';
 import { QuizService } from './quiz.service';
+import { JwtGuard, RoleGuard } from '../auth/guard';
+import { Roles } from '../auth/decorator';
+import { TypeRoleAdmin } from '@prisma/client';
+import { CreateQuizDto, UpdateQuizDto } from './dto/create-quiz.dto';
+import { isValidObjectId } from '../helpers/helper';
 
 @Controller('quiz')
 export class QuizController {
@@ -22,4 +28,54 @@ export class QuizController {
         private readonly httpHelper: HttpHelper,
     ) { }
 
+    @Post()
+    @UseGuards(JwtGuard, RoleGuard)
+    @Roles(TypeRoleAdmin.ADMIN, TypeRoleAdmin.SUPER_ADMIN)
+    async createQuiz(@Body() dto: CreateQuizDto, @Res() res) {
+        const result = await this.quizService.createQuiz(dto)
+        return this.httpHelper.formatResponse(res, HttpStatus.CREATED, result)
+    }
+
+    @Put(":id")
+    @UseGuards(JwtGuard, RoleGuard)
+    @Roles(TypeRoleAdmin.ADMIN, TypeRoleAdmin.SUPER_ADMIN)
+    async updateQuiz(@Body() dto: UpdateQuizDto, @Res() res, @Param("id") id: string) {
+        if (!isValidObjectId(id)) {
+            throw new BadRequestException('Invalid ID');
+        }
+        await this.quizService.updateQuiz(id, dto);
+        return this.httpHelper.formatResponse(res, HttpStatus.OK, {})
+    }
+
+    @Delete(":id")
+    @UseGuards(JwtGuard, RoleGuard)
+    @Roles(TypeRoleAdmin.ADMIN, TypeRoleAdmin.SUPER_ADMIN)
+    async deleteQuiz(@Res() res, @Param("id") id: string) {
+        if (!isValidObjectId(id)) {
+            throw new BadRequestException('Invalid ID');
+        }
+        await this.quizService.deleteQuiz(id);
+        return this.httpHelper.formatResponse(res, HttpStatus.OK, {})
+    }
+
+    @Get()
+    async getAllQuiz(@Res() res) {
+        const result = await this.quizService.findAllQuizs()
+        return this.httpHelper.formatResponse(res, HttpStatus.OK, result)
+    }
+
+    @Get("slug/:slug")
+    async getOneQuizBySlug(@Res() res, @Param("slug") slug: string) {
+        const result = await this.quizService.findQuizBySlug(slug)
+        return this.httpHelper.formatResponse(res, HttpStatus.OK, result)
+    }
+
+    @Get(":id")
+    async getOneQuiz(@Res() res, @Param("id") id: string) {
+        if (!isValidObjectId(id)) {
+            throw new BadRequestException('Invalid ID');
+        }
+        const result = await this.quizService.findQuizById(id)
+        return this.httpHelper.formatResponse(res, HttpStatus.OK, result)
+    }
 }

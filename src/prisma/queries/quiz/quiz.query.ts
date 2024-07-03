@@ -16,6 +16,14 @@ export class QuizQuery extends DbService {
         })
     }
 
+    async findBySlug(slug: string) {
+        return await this.prisma.quiz.findUnique({
+            where: {
+                slug
+            }
+        })
+    }
+
     async create(dto: Prisma.QuizCreateInput) {
         return await this.prisma.quiz.create({
             data: dto

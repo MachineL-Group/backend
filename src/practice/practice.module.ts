@@ -7,6 +7,7 @@ import { HelperModule } from '../helpers/helper.module';
 import { PracticeService } from './practice.service';
 import { PracticeRepository } from './practice.repository';
 import { PracticeController } from './practice.controller';
+import { LessonModule } from '../lesson/lesson.module';
 
 @Module({
     imports: [
@@ -15,6 +16,7 @@ import { PracticeController } from './practice.controller';
         MomentModule,
         ConfigModule,
         HelperModule,
+        LessonModule
     ],
     providers: [PracticeService, PracticeRepository],
     controllers: [PracticeController],

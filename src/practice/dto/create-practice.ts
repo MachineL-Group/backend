@@ -1,15 +1,14 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { Type } from 'class-transformer';
 import { IsArray, IsNotEmpty, IsNumber, IsString, IsUrl, ValidateNested } from 'class-validator';
-import { IsObjectId } from '../../helpers/decorator/isValidObjectId.decorator';
 export class CreatePracticeDto {
     @IsNotEmpty()
     @IsString()
     title: string;
 
     @IsNotEmpty()
-    @IsObjectId()
-    idLesson: string;
+    @IsString()
+    slugLesson: string;
 
     @Type(() => Questions)
     @ValidateNested()
@@ -24,8 +23,6 @@ export class CreatePracticeDto {
     signs: Signs[];
 }
 
-
-
 class Questions {
     @IsNotEmpty()
     @IsUrl()
@@ -33,11 +30,11 @@ class Questions {
 
     @IsNotEmpty()
     @IsString()
-    description: string;
+    question: string;
 
     @IsNotEmpty()
     @IsString()
-    label: string;
+    answer: string;
 
     @IsNotEmpty()
     @IsNumber()
