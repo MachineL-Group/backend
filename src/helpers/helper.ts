@@ -118,3 +118,22 @@ export const generateSlug = (input: string) => {
 export function isValidObjectId(id: string): boolean {
   return /^[0-9a-fA-F]{24}$/.test(id);
 }
+
+
+
+const backgroundColors = [
+  'bg-blue-500', 'bg-green-500', 'bg-red-500', 'bg-yellow-500', 'bg-purple-500',
+  'bg-pink-500', 'bg-teal-500', 'bg-orange-500', 'bg-indigo-500', 'bg-gray-500'
+];
+
+const backgroundImages = [
+  'bg-curtain', 'bg-circles', 'bg-autumn', 'bg-connections', 'bg-parkay-floor',
+  'bg-i-like-food', 'bg-groovy', 'bg-signal', 'bg-bathroom-floor', 'bg-bamboo',
+  'bg-jigsaw', 'bg-leaf'
+];
+
+export function generateBackgroundClass() {
+  const randomColor = backgroundColors[Math.floor(Math.random() * backgroundColors.length)];
+  const randomImage = backgroundImages[Math.floor(Math.random() * backgroundImages.length)];
+  return { backgroundColor: randomColor, backgroundImage: randomImage };
+}

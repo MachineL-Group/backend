@@ -120,12 +120,14 @@ model UnitLesson {
 }
 
 model Practice {
-  id        String @id @default(auto()) @map("_id") @db.ObjectId
-  idLesson  String @db.ObjectId
-  title     String
-  slug      String @unique
-  signs     Json[]
-  questions Json[]
+  id              String @id @default(auto()) @map("_id") @db.ObjectId
+  idLesson        String @db.ObjectId
+  title           String
+  slug            String @unique
+  backgroundColor String
+  backgroundImage String
+  signs           Json[]
+  questions       Json[]
 
   lesson         Lesson           @relation(fields: [idLesson], references: [id])
   userOnPractice UserOnPractice[]

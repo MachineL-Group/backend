@@ -5,13 +5,20 @@ import { Prisma, PrismaClient } from '@prisma/client';
 @Injectable()
 export class PracticeQuery extends DbService {
     async findAll() {
-        return await this.prisma.practice.findMany();
+        return await this.prisma.practice.findMany({
+            include: {
+                lesson: true
+            }
+        });
     }
 
     async findById(id: string) {
         return await this.prisma.practice.findUnique({
             where: {
                 id
+            },
+            include: {
+                lesson: true
             }
         })
     }
@@ -20,6 +27,9 @@ export class PracticeQuery extends DbService {
         return await this.prisma.practice.findUnique({
             where: {
                 slug
+            },
+            include: {
+                lesson: true
             }
         })
     }

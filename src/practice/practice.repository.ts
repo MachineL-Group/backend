@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PracticeQuery } from '../prisma/queries/practice/practice.query';
 import { CreatePracticeDto, UpdatePracticeDto } from './dto/create-practice';
-import { generateSlug } from '../helpers/helper';
+import { generateBackgroundClass, generateSlug } from '../helpers/helper';
 import { Prisma } from '@prisma/client';
 import { LessonRepository } from '../lesson/lesson.repository';
 
@@ -45,6 +45,9 @@ export class PracticeRepository {
         await this.checkSlugExistAndThrow(slug);
 
         const lesson = await this.lessonRepostory.findLessonBySlugOrThrow(dto.slugLesson);
+
+        const backgroundClass = generateBackgroundClass();
+
         return await this.practiceQuery.create({
             title: dto.title,
             slug: slug,
@@ -54,9 +57,12 @@ export class PracticeRepository {
                 }
             },
             questions: JSON.parse(JSON.stringify(dto.questions)) as Prisma.JsonArray,
-            signs: JSON.parse(JSON.stringify(dto.signs)) as Prisma.JsonArray
-        })
+            signs: JSON.parse(JSON.stringify(dto.signs)) as Prisma.JsonArray,
+            backgroundColor: backgroundClass.backgroundColor,
+            backgroundImage: backgroundClass.backgroundImage
+        });
     }
+
 
     async updatePractice(id: string, dto: UpdatePracticeDto) {
         const practice = await this.findPracticeByIdOrThrow(id);
