@@ -123,12 +123,19 @@ export class AuthRepository {
                 throw new BadRequestException('Password salah');
             }
 
-            return await this.signJwtToken(
+            const token = await this.signJwtToken(
                 user.id,
                 user.role,
                 TokenType.FULL,
                 '7d',
             );
+            delete user.password
+            delete user.codeVerify
+            delete user.expiresCodeVerifyAt
+            return {
+                ...token,
+                user
+            }
         } catch (error) {
             throw error;
         }
