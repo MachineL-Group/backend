@@ -21,7 +21,13 @@ export class QuizRepository {
         if (!quiz) {
             throw new BadRequestException('Quiz not found');
         }
-        return quiz;
+        // delete answer
+        const questions = quiz.questions as unknown as IQuizQuestion[]
+        questions.map(q => delete q.answer)
+        return {
+            ...quiz,
+            questions
+        };
     }
 
     async findQuizBySlugOrThrow(slug: string) {
@@ -29,7 +35,12 @@ export class QuizRepository {
         if (!quiz) {
             throw new BadRequestException('Quiz not found');
         }
-        return quiz;
+        const questions = quiz.questions as unknown as IQuizQuestion[]
+        questions.map(q => delete q.answer)
+        return {
+            ...quiz,
+            questions
+        };
     }
 
     async checkSlugExistAndThrow(slug: string) {
