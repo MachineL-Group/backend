@@ -17,9 +17,10 @@ import { HttpHelper } from '../helpers/http-helper';
 import { QuizService } from './quiz.service';
 import { JwtGuard, RoleGuard } from '../auth/guard';
 import { Roles } from '../auth/decorator';
-import { TypeRoleAdmin } from '@prisma/client';
+import { TypeRoleAdmin, TypeRoleUser } from '@prisma/client';
 import { CreateQuizDto, UpdateQuizDto } from './dto/create-quiz.dto';
 import { isValidObjectId } from '../helpers/helper';
+import { SubmitQuizDto } from './dto/submit-quiz.dto';
 
 @Controller('quiz')
 export class QuizController {
@@ -27,6 +28,17 @@ export class QuizController {
         private readonly quizService: QuizService,
         private readonly httpHelper: HttpHelper,
     ) { }
+
+    @Post("check-answer")
+    @UseGuards(JwtGuard, RoleGuard)
+    @Roles(TypeRoleUser.USER)
+    async checkAnswer(
+        @Headers("authorization") authorization: string,
+        @Body() dto: SubmitQuizDto,
+        @Res() res) {
+        const result = await this.quizService.checkAnswer(authorization, dto)
+        return this.httpHelper.formatResponse(res, HttpStatus.OK, result)
+    }
 
     @Post()
     @UseGuards(JwtGuard, RoleGuard)

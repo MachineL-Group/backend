@@ -8,6 +8,7 @@ import { QuizService } from './quiz.service';
 import { QuizRepository } from './quiz.repository';
 import { QuizController } from './quiz.controller';
 import { LessonModule } from '../lesson/lesson.module';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
     imports: [
@@ -16,7 +17,8 @@ import { LessonModule } from '../lesson/lesson.module';
         MomentModule,
         ConfigModule,
         HelperModule,
-        LessonModule
+        LessonModule,
+        AuthModule
     ],
     providers: [QuizService, QuizRepository],
     controllers: [QuizController],
