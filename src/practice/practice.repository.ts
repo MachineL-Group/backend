@@ -116,7 +116,7 @@ export class PracticeRepository {
                 // find practice
                 const practice = await tx.practice.findUnique({
                     where: {
-                        id: dto.idPractice
+                        slug: dto.slugPractice
                     }
                 });
                 if (!practice) {
@@ -149,7 +149,7 @@ export class PracticeRepository {
                     where: {
                         idUser_idPractice: {
                             idUser: idUser,
-                            idPractice: dto.idPractice
+                            idPractice: practice.id
                         }
                     }
                 });
@@ -159,7 +159,7 @@ export class PracticeRepository {
                     await tx.userOnPractice.create({
                         data: {
                             idUser: idUser,
-                            idPractice: dto.idPractice,
+                            idPractice: practice.id,
                             currentNumber: dto.numberPractice,
                             isDone: question.length === dto.numberPractice,
                             score: questionByNumber.point,
@@ -199,7 +199,7 @@ export class PracticeRepository {
                         where: {
                             idUser_idPractice: {
                                 idUser: idUser,
-                                idPractice: dto.idPractice
+                                idPractice: practice.id
                             }
                         },
                         data: {
