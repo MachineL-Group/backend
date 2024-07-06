@@ -173,6 +173,7 @@ model UserOnQuiz {
   idQuiz        String  @db.ObjectId
   isDone        Boolean @default(false)
   score         Int?
+  xp            Int?
   currentNumber Int?
   quizHistory   Json[]
   user          User    @relation(fields: [idUser], references: [id], onDelete: Cascade)

@@ -40,4 +40,10 @@ export class QuizService {
         const { sub } = await this.authService.decodeJwtToken(token);
         return this.quizRepository.checkAnswer(sub, dto);
     }
+
+    async getHistory(token: string, slugQuiz: string) {
+        // decode token
+        const { sub } = await this.authService.decodeJwtToken(token);
+        return this.quizRepository.getHistory(sub, slugQuiz);
+    }
 }

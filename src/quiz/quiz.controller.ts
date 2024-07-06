@@ -76,6 +76,18 @@ export class QuizController {
         return this.httpHelper.formatResponse(res, HttpStatus.OK, result)
     }
 
+    @UseGuards(JwtGuard, RoleGuard)
+    @Roles(TypeRoleUser.USER)
+    @Get("score/:slug")
+    async getScore(
+        @Res() res,
+        @Param("slug") slug: string,
+        @Headers("authorization") authorization: string,
+    ) {
+        const result = await this.quizService.getHistory(authorization, slug)
+        return this.httpHelper.formatResponse(res, HttpStatus.OK, result)
+    }
+
     @Get("slug/:slug")
     async getOneQuizBySlug(@Res() res, @Param("slug") slug: string) {
         const result = await this.quizService.findQuizBySlug(slug)

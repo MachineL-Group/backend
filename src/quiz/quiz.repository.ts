@@ -125,7 +125,63 @@ export class QuizRepository {
             const questionByNumber = question.find(q => q.number === dto.numberQuiz);
             if (!questionByNumber) throw new BadRequestException('Question not found')
 
-            if (questionByNumber.answer !== dto.answer) throw new BadRequestException('Oops, wrong answer');
+            if (questionByNumber.answer !== dto.answer) {
+                const historyPayload: IQuizHistory = {
+                    imageUrl: questionByNumber.imageUrl,
+                    answer: questionByNumber.answer,
+                    number: dto.numberQuiz,
+                    isCorrect: false,
+                    point: questionByNumber.point,
+                    question: questionByNumber.question,
+                    myAnswer: dto.answer
+                }
+                // find userOnQuiz
+                const userOnQuiz = await tx.userOnQuiz.findUnique({
+                    where: {
+                        idUser_idQuiz: {
+                            idUser: idUser,
+                            idQuiz: quiz.id
+                        }
+                    }
+                });
+                if (!userOnQuiz) {
+                    // create userOnQuiz
+                    await tx.userOnQuiz.create({
+                        data: {
+                            score: 0,
+                            idUser: idUser,
+                            idQuiz: quiz.id,
+                            currentNumber: dto.numberQuiz,
+                            isDone: question.length === dto.numberQuiz,
+                            xp: 0,
+                            quizHistory: JSON.parse(JSON.stringify([historyPayload]))
+                        }
+                    })
+                } else {
+                    // check is user already take this question
+                    const historyQuestion = userOnQuiz.quizHistory as unknown as IQuizHistory[]
+                    const history = historyQuestion.find(h => h.number === dto.numberQuiz);
+                    if (!history) {
+                        // caluate skor by correct answer and total question
+                        const score = Math.round((historyQuestion.filter(h => h.isCorrect).length / historyQuestion.length) * 100);
+                        // update userOnQuiz
+                        await tx.userOnQuiz.update({
+                            where: {
+                                idUser_idQuiz: {
+                                    idUser: idUser,
+                                    idQuiz: quiz.id
+                                }
+                            },
+                            data: {
+                                score: score,
+                                isDone: question.length === dto.numberQuiz,
+                                quizHistory: JSON.parse(JSON.stringify([...historyQuestion, historyPayload]))
+                            }
+                        })
+                    }
+                }
+                return false
+            }
 
             const historyPayload: IQuizHistory = {
                 imageUrl: questionByNumber.imageUrl,
@@ -147,6 +203,10 @@ export class QuizRepository {
             });
 
             if (!userOnQuiz) {
+                // caluate skor by correct answer and total question
+                const correctAnswer = question.filter(q => q.answer === q.answer).length
+                const totalQuestion = question.length
+                const score = (correctAnswer / totalQuestion) * 100
                 // create userOnQuiz
                 await tx.userOnQuiz.create({
                     data: {
@@ -154,7 +214,8 @@ export class QuizRepository {
                         idQuiz: quiz.id,
                         currentNumber: dto.numberQuiz,
                         isDone: question.length === dto.numberQuiz,
-                        score: questionByNumber.point,
+                        xp: questionByNumber.point,
+                        score: score,
                         quizHistory: JSON.parse(JSON.stringify([historyPayload]))
                     }
                 })
@@ -186,6 +247,9 @@ export class QuizRepository {
                     });
                 }
 
+                // caluate skor by correct answer and total question
+                const score = Math.round((historyQuestion.filter(h => h.isCorrect).length / historyQuestion.length) * 100);
+
                 // update userOnQuiz
                 await tx.userOnQuiz.update({
                     where: {
@@ -197,14 +261,40 @@ export class QuizRepository {
                     data: {
                         currentNumber: dto.numberQuiz,
                         isDone: question.length === dto.numberQuiz,
-                        score: history ? userOnQuiz.score : userOnQuiz.score + questionByNumber.point,
+                        xp: history ? userOnQuiz.xp : userOnQuiz.xp + questionByNumber.point,
+                        score: score,
                         quizHistory: JSON.parse(JSON.stringify(historyQuestion))
                     }
                 });
             }
             return questionByNumber
         });
-
+        if (!transaction) throw new BadRequestException('Wrong answer');
         return transaction;
+    }
+
+    async getHistory(idUser: string, slugQuiz: string) {
+        const user = await this.prisma.user.findUnique({
+            where: {
+                id: idUser
+            }
+        })
+        if (!user) throw new BadRequestException('User not found')
+        const quiz = await this.prisma.quiz.findUnique({
+            where: {
+                slug: slugQuiz
+            }
+        })
+        if (!quiz) throw new BadRequestException('Quiz not found')
+        const userOnQuiz = await this.prisma.userOnQuiz.findUnique({
+            where: {
+                idUser_idQuiz: {
+                    idUser: idUser,
+                    idQuiz: quiz.id
+                }
+            }
+        })
+        if (!userOnQuiz) throw new BadRequestException('User not found')
+        return userOnQuiz
     }
 }
