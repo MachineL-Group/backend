@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { QuizQuery } from '../prisma/queries/quiz/quiz.query';
 import { CreateQuizDto, UpdateQuizDto } from './dto/create-quiz.dto';
-import { generateSlug } from '../helpers/helper';
+import { generateBackgroundClass, generateSlug } from '../helpers/helper';
 import { Prisma } from '@prisma/client';
 import { LessonRepository } from '../lesson/lesson.repository';
 
@@ -44,6 +44,7 @@ export class QuizRepository {
         const slug = generateSlug(dto.title);
         await this.checkSlugExistAndThrow(slug);
         const lesson = await this.lessonRepository.findLessonBySlugOrThrow(dto.slugLesson)
+        const backgroundClass = generateBackgroundClass();
         return await this.quizQuery.create({
             title: dto.title,
             slug: slug,
@@ -53,7 +54,9 @@ export class QuizRepository {
                 }
             },
             questions: JSON.parse(JSON.stringify(dto.questions)) as Prisma.JsonArray,
-            signs: JSON.parse(JSON.stringify(dto.signs)) as Prisma.JsonArray
+            signs: JSON.parse(JSON.stringify(dto.signs)) as Prisma.JsonArray,
+            backgroundColor: backgroundClass.backgroundColor,
+            backgroundImage: backgroundClass.backgroundImage
         })
     }
 

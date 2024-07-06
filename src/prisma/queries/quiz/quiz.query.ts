@@ -5,7 +5,11 @@ import { Prisma, PrismaClient } from '@prisma/client';
 @Injectable()
 export class QuizQuery extends DbService {
     async findAll() {
-        return await this.prisma.quiz.findMany();
+        return await this.prisma.quiz.findMany({
+            include: {
+                lesson: true
+            }
+        });
     }
 
     async findById(id: string) {
