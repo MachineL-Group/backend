@@ -4,12 +4,16 @@ import { CreateQuizDto, UpdateQuizDto } from './dto/create-quiz.dto';
 import { generateBackgroundClass, generateSlug } from '../helpers/helper';
 import { Prisma } from '@prisma/client';
 import { LessonRepository } from '../lesson/lesson.repository';
+import { PrismaService } from '../prisma/prisma.service';
+import { IQuizHistory, IQuizQuestion } from './interfaces/quiz.interface';
+import { SubmitQuizDto } from './dto/submit-quiz.dto';
 
 @Injectable()
 export class QuizRepository {
     constructor(
         private readonly quizQuery: QuizQuery,
-        private readonly lessonRepository: LessonRepository
+        private readonly lessonRepository: LessonRepository,
+        private readonly prisma: PrismaService
     ) { }
 
     async findQuizByIdOrThrow(id: string) {
@@ -81,5 +85,115 @@ export class QuizRepository {
     async deleteQuiz(id: string) {
         const quiz = await this.findQuizByIdOrThrow(id);
         return await this.quizQuery.deleteById(quiz.id);
+    }
+
+    async checkAnswer(idUser: string, dto: SubmitQuizDto) {
+        // Start a transaction
+        const transaction = await this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+            // find user
+            const user = await tx.user.findUnique({
+                where: {
+                    id: idUser
+                }
+            });
+            if (!user) {
+                throw new BadRequestException('User not found');
+            }
+            // find quiz
+            const quiz = await tx.quiz.findUnique({
+                where: {
+                    slug: dto.slugQuiz
+                }
+            });
+            if (!quiz) {
+                throw new BadRequestException('quiz not found');
+            }
+
+            // get question in quiz by number
+            const question = quiz.questions as unknown as IQuizQuestion[]
+            const questionByNumber = question.find(q => q.number === dto.numberQuiz);
+            if (!questionByNumber) throw new BadRequestException('Question not found')
+
+            if (questionByNumber.answer !== dto.answer) throw new BadRequestException('Oops, wrong answer');
+
+            const historyPayload: IQuizHistory = {
+                imageUrl: questionByNumber.imageUrl,
+                answer: questionByNumber.answer,
+                number: dto.numberQuiz,
+                isCorrect: true,
+                point: questionByNumber.point,
+                question: questionByNumber.question,
+                myAnswer: dto.answer
+            }
+            // find userOnQuiz
+            const userOnQuiz = await tx.userOnQuiz.findUnique({
+                where: {
+                    idUser_idQuiz: {
+                        idUser: idUser,
+                        idQuiz: quiz.id
+                    }
+                }
+            });
+
+            if (!userOnQuiz) {
+                // create userOnQuiz
+                await tx.userOnQuiz.create({
+                    data: {
+                        idUser: idUser,
+                        idQuiz: quiz.id,
+                        currentNumber: dto.numberQuiz,
+                        isDone: question.length === dto.numberQuiz,
+                        score: questionByNumber.point,
+                        quizHistory: JSON.parse(JSON.stringify([historyPayload]))
+                    }
+                })
+                // update point user
+                await tx.user.update({
+                    where: {
+                        id: idUser
+                    },
+                    data: {
+                        pointXp: user.pointXp + questionByNumber.point
+                    }
+                });
+            } else {
+                // check is user already take this question
+                const historyQuestion = userOnQuiz.quizHistory as unknown as IQuizHistory[]
+                const history = historyQuestion.find(h => h.number === dto.numberQuiz);
+
+                if (!history) {
+                    // push new history
+                    historyQuestion.push(historyPayload);
+                    // update point user
+                    await tx.user.update({
+                        where: {
+                            id: idUser
+                        },
+                        data: {
+                            pointXp: user.pointXp + questionByNumber.point
+                        }
+                    });
+                }
+
+                // update userOnQuiz
+                await tx.userOnQuiz.update({
+                    where: {
+                        idUser_idQuiz: {
+                            idUser: idUser,
+                            idQuiz: quiz.id
+                        }
+                    },
+                    data: {
+                        currentNumber: dto.numberQuiz,
+                        isDone: question.length === dto.numberQuiz,
+                        score: history ? userOnQuiz.score : userOnQuiz.score + questionByNumber.point,
+                        quizHistory: JSON.parse(JSON.stringify(historyQuestion))
+                    }
+                });
+            }
+            return questionByNumber
+        });
+
+        return transaction;
     }
 }

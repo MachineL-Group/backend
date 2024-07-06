@@ -168,12 +168,15 @@ model UserOnPractice {
 }
 
 model UserOnQuiz {
-  id          String  @id @default(auto()) @map("_id") @db.ObjectId
-  idUser      String  @db.ObjectId
-  idQuiz      String  @db.ObjectId
-  isDone      Boolean @default(false)
-  score       Int?
-  quizHistory Json[]
-  user        User    @relation(fields: [idUser], references: [id], onDelete: Cascade)
-  quiz        Quiz    @relation(fields: [idQuiz], references: [id], onDelete: Cascade)
+  id            String  @id @default(auto()) @map("_id") @db.ObjectId
+  idUser        String  @db.ObjectId
+  idQuiz        String  @db.ObjectId
+  isDone        Boolean @default(false)
+  score         Int?
+  currentNumber Int?
+  quizHistory   Json[]
+  user          User    @relation(fields: [idUser], references: [id], onDelete: Cascade)
+  quiz          Quiz    @relation(fields: [idQuiz], references: [id], onDelete: Cascade)
+
+  @@unique([idUser, idQuiz])
 }
