@@ -1,15 +1,21 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PracticeQuery } from '../prisma/queries/practice/practice.query';
 import { CreatePracticeDto, UpdatePracticeDto } from './dto/create-practice';
-import { generateBackgroundClass, generateSlug } from '../helpers/helper';
+import { _validateFile, generateBackgroundClass, generateSlug } from '../helpers/helper';
 import { Prisma } from '@prisma/client';
 import { LessonRepository } from '../lesson/lesson.repository';
+import { PrismaService } from '../prisma/prisma.service';
+import { CreatePredictPracticeDto } from './dto/predict.dto';
+import { IPracticeHistory, IPracticeQuestion } from './interfaces/practice.interface';
+import { GatewayService } from '../gateway/gateway.service';
 
 @Injectable()
 export class PracticeRepository {
     constructor(
         private readonly practiceQuery: PracticeQuery,
         private readonly lessonRepostory: LessonRepository,
+        private readonly prisma: PrismaService,
+        private readonly gatewayService: GatewayService,
     ) { }
 
     async findPracticeByIdOrThrow(id: string) {
@@ -85,5 +91,113 @@ export class PracticeRepository {
     async deletePractice(id: string) {
         const practice = await this.findPracticeByIdOrThrow(id);
         return await this.practiceQuery.deleteById(practice.id);
+    }
+
+    async CaptureImage(idUser: string, dto: CreatePredictPracticeDto, file: Express.Multer.File) {
+        if (!file) throw new BadRequestException('Please upload file');
+        _validateFile(
+            `Image`,
+            file,
+            ['.jpeg', '.jpg', '.png'],
+            1,
+        );
+        try {
+            // Start a transaction
+            const transaction = await this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+                // find user
+                const user = await tx.user.findUnique({
+                    where: {
+                        id: idUser
+                    }
+                });
+                if (!user) {
+                    throw new BadRequestException('User not found');
+                }
+                // find practice
+                const practice = await tx.practice.findUnique({
+                    where: {
+                        id: dto.idPractice
+                    }
+                });
+                if (!practice) {
+                    throw new BadRequestException('Practice not found');
+                }
+
+                // get prediction
+                const signPredict = await this.gatewayService.predictAsl(file)
+                if (!signPredict.isDetected) throw new BadRequestException('Oops, your answer is wrong, please try again')
+
+                // get question in practice by number
+                const question = practice.questions as unknown as IPracticeQuestion[]
+                const questionByNumber = question.find(q => q.number === dto.numberPractice);
+                if (!questionByNumber) throw new BadRequestException('Question not found')
+
+                // check answer is correc
+                if (signPredict.label !== questionByNumber.answer) throw new BadRequestException('Oops, your answer is wrong, please try again')
+
+                const historyPayload: IPracticeHistory = {
+                    imageUrl: questionByNumber.imageUrl,
+                    answer: questionByNumber.answer,
+                    number: dto.numberPractice,
+                    isCorrect: true,
+                    point: questionByNumber.point,
+                    question: questionByNumber.question,
+                    myAnswer: signPredict.label
+                }
+                // find userOnPractice
+                const userOnPractice = await tx.userOnPractice.findUnique({
+                    where: {
+                        idUser_idPractice: {
+                            idUser: idUser,
+                            idPractice: dto.idPractice
+                        }
+                    }
+                });
+
+                if (!userOnPractice) {
+                    // create userOnPractice
+                    await tx.userOnPractice.create({
+                        data: {
+                            idUser: idUser,
+                            idPractice: dto.idPractice,
+                            currentNumber: dto.numberPractice,
+                            isDone: question.length === dto.numberPractice,
+                            score: questionByNumber.point,
+                            practiceHistory: JSON.parse(JSON.stringify([historyPayload]))
+                        }
+                    });
+                }
+
+                // check is user already take this question
+                const historyQuestion = userOnPractice.practiceHistory as unknown as IPracticeHistory[]
+                const history = historyQuestion.find(h => h.number === dto.numberPractice);
+
+                if (!history) {
+                    // push new history
+                    historyQuestion.push(historyPayload);
+                }
+
+                // update userOnPractice
+                await tx.userOnPractice.update({
+                    where: {
+                        idUser_idPractice: {
+                            idUser: idUser,
+                            idPractice: dto.idPractice
+                        }
+                    },
+                    data: {
+                        currentNumber: dto.numberPractice,
+                        isDone: question.length === dto.numberPractice,
+                        score: history ? userOnPractice.score : userOnPractice.score + questionByNumber.point,
+                        practiceHistory: JSON.parse(JSON.stringify(historyQuestion))
+                    }
+                });
+                return signPredict
+            });
+
+            return transaction;
+        } catch (error) {
+            throw error;
+        }
     }
 }

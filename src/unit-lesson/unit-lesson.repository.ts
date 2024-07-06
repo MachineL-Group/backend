@@ -43,7 +43,7 @@ export class UnitLessonRepository {
     async createUnitLesson(dto: CreateUnitLessonDto) {
         const slug = generateSlug(dto.title);
         await this.checkSlugExistAndThrow(slug);
-        const lesson = await this.lessonRepository.findLessonByIdOrThrow(dto.slugLesson);
+        const lesson = await this.lessonRepository.findLessonBySlugOrThrow(dto.slugLesson);
         return await this.unitLessonQuery.create({
             lesson: {
                 connect: {
@@ -63,7 +63,7 @@ export class UnitLessonRepository {
             await this.checkSlugExistAndThrow(slug);
         }
         if (dto.slugLesson) {
-            var lesson = await this.lessonRepository.findLessonByIdOrThrow(dto.slugLesson);
+            var lesson = await this.lessonRepository.findLessonBySlugOrThrow(dto.slugLesson);
         }
         return await this.unitLessonQuery.updateById(id, {
             title: dto.title,

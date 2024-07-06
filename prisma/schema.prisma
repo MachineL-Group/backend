@@ -157,6 +157,7 @@ model UserOnPractice {
   idPractice      String   @db.ObjectId
   isDone          Boolean  @default(false)
   score           Int?
+  currentNumber   Int?
   practiceHistory Json[]
   user            User     @relation(fields: [idUser], references: [id], onDelete: Cascade)
   practice        Practice @relation(fields: [idPractice], references: [id], onDelete: Cascade)

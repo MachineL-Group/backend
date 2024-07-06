@@ -1,6 +1,6 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { Type } from 'class-transformer';
-import { IsArray, IsNotEmpty, IsNumber, IsString, IsUrl, ValidateNested } from 'class-validator';
+import { IsArray, IsInt, IsNotEmpty, IsNumber, IsString, IsUrl, ValidateNested } from 'class-validator';
 export class CreatePracticeDto {
     @IsNotEmpty()
     @IsString()
@@ -24,6 +24,10 @@ export class CreatePracticeDto {
 }
 
 class Questions {
+    @IsNotEmpty()
+    @IsInt()
+    number: number;
+
     @IsNotEmpty()
     @IsUrl()
     imageUrl: string;

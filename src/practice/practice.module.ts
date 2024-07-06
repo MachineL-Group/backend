@@ -8,6 +8,8 @@ import { PracticeService } from './practice.service';
 import { PracticeRepository } from './practice.repository';
 import { PracticeController } from './practice.controller';
 import { LessonModule } from '../lesson/lesson.module';
+import { GatewayModule } from '../gateway/gateway.module';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
     imports: [
@@ -16,7 +18,9 @@ import { LessonModule } from '../lesson/lesson.module';
         MomentModule,
         ConfigModule,
         HelperModule,
-        LessonModule
+        LessonModule,
+        GatewayModule,
+        AuthModule
     ],
     providers: [PracticeService, PracticeRepository],
     controllers: [PracticeController],

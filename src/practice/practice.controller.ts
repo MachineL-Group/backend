@@ -12,14 +12,18 @@ import {
     UseGuards,
     Headers,
     BadRequestException,
+    UseInterceptors,
+    UploadedFile,
 } from '@nestjs/common';
 import { HttpHelper } from '../helpers/http-helper';
 import { PracticeService } from './practice.service';
 import { JwtGuard, RoleGuard } from '../auth/guard';
 import { Roles } from '../auth/decorator';
-import { TypeRoleAdmin } from '@prisma/client';
+import { TypeRoleAdmin, TypeRoleUser } from '@prisma/client';
 import { CreatePracticeDto, UpdatePracticeDto } from './dto/create-practice';
 import { isValidObjectId } from '../helpers/helper';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { CreatePredictPracticeDto } from './dto/predict.dto';
 
 @Controller('practice')
 export class PracticeController {
@@ -34,6 +38,19 @@ export class PracticeController {
     async createPractice(@Body() dto: CreatePracticeDto, @Res() res) {
         const result = await this.practiceService.createPractice(dto)
         return this.httpHelper.formatResponse(res, HttpStatus.CREATED, result)
+    }
+
+    @Post("scan")
+    @UseGuards(JwtGuard, RoleGuard)
+    @Roles(TypeRoleUser.USER)
+    @UseInterceptors(FileInterceptor('file'))
+    async predictPractice(
+        @Headers("authorization") authorization: string,
+        @Body() dto: CreatePredictPracticeDto,
+        @Res() res,
+        @UploadedFile() file: Express.Multer.File) {
+        const result = await this.practiceService.predictPractice(authorization, dto, file);
+        return this.httpHelper.formatResponse(res, HttpStatus.OK, result);
     }
 
     @Put(":id")
