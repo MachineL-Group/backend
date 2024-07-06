@@ -16,4 +16,8 @@ export class UserService {
         const { sub } = await this.authService.decodeJwtToken(token);
         return await this.userRepository.updateProfile(sub, dto);
     }
+
+    async findAllUser() {
+        return await this.userRepository.findAllUser();
+    }
 }

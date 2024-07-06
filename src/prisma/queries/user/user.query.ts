@@ -33,6 +33,8 @@ export class UserQuery extends DbService {
                 email: true,
                 role: true,
                 status: true,
+                pointXp: true,
+                profilePic: true
             },
         });
     }

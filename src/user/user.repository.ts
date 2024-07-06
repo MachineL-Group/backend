@@ -60,4 +60,8 @@ export class UserRepository {
         });
         return updateUser
     }
+
+    async findAllUser() {
+        return await this.userQuery.findAllWithoutPassword();
+    }
 }

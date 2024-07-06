@@ -38,4 +38,10 @@ export class UserController {
         await this.userService.updateProfile(authorization, dto);
         return this.httpHelper.formatResponse(res, HttpStatus.OK, {});
     }
+
+    @Get()
+    async getAllUser(@Res() res) {
+        const result = await this.userService.findAllUser();
+        return this.httpHelper.formatResponse(res, HttpStatus.OK, result)
+    }
 }
