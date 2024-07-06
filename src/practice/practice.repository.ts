@@ -165,33 +165,51 @@ export class PracticeRepository {
                             score: questionByNumber.point,
                             practiceHistory: JSON.parse(JSON.stringify([historyPayload]))
                         }
+                    })
+                    // update point user
+                    await tx.user.update({
+                        where: {
+                            id: idUser
+                        },
+                        data: {
+                            pointXp: user.pointXp + questionByNumber.point
+                        }
+                    });
+                } else {
+                    // check is user already take this question
+                    const historyQuestion = userOnPractice.practiceHistory as unknown as IPracticeHistory[]
+                    const history = historyQuestion.find(h => h.number === dto.numberPractice);
+
+                    if (!history) {
+                        // push new history
+                        historyQuestion.push(historyPayload);
+                        // update point user
+                        await tx.user.update({
+                            where: {
+                                id: idUser
+                            },
+                            data: {
+                                pointXp: user.pointXp + questionByNumber.point
+                            }
+                        });
+                    }
+
+                    // update userOnPractice
+                    await tx.userOnPractice.update({
+                        where: {
+                            idUser_idPractice: {
+                                idUser: idUser,
+                                idPractice: dto.idPractice
+                            }
+                        },
+                        data: {
+                            currentNumber: dto.numberPractice,
+                            isDone: question.length === dto.numberPractice,
+                            score: history ? userOnPractice.score : userOnPractice.score + questionByNumber.point,
+                            practiceHistory: JSON.parse(JSON.stringify(historyQuestion))
+                        }
                     });
                 }
-
-                // check is user already take this question
-                const historyQuestion = userOnPractice.practiceHistory as unknown as IPracticeHistory[]
-                const history = historyQuestion.find(h => h.number === dto.numberPractice);
-
-                if (!history) {
-                    // push new history
-                    historyQuestion.push(historyPayload);
-                }
-
-                // update userOnPractice
-                await tx.userOnPractice.update({
-                    where: {
-                        idUser_idPractice: {
-                            idUser: idUser,
-                            idPractice: dto.idPractice
-                        }
-                    },
-                    data: {
-                        currentNumber: dto.numberPractice,
-                        isDone: question.length === dto.numberPractice,
-                        score: history ? userOnPractice.score : userOnPractice.score + questionByNumber.point,
-                        practiceHistory: JSON.parse(JSON.stringify(historyQuestion))
-                    }
-                });
                 return signPredict
             });
 
