@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PracticeQuery } from '../prisma/queries/practice/practice.query';
 import { CreatePracticeDto, UpdatePracticeDto } from './dto/create-practice';
-import { _validateFile, generateBackgroundClass, generateSlug } from '../helpers/helper';
+import { FolderBucketType, _validateFile, generateBackgroundClass, generateSlug, getCustomFilename } from '../helpers/helper';
 import { Prisma } from '@prisma/client';
 import { LessonRepository } from '../lesson/lesson.repository';
 import { PrismaService } from '../prisma/prisma.service';
@@ -101,6 +101,12 @@ export class PracticeRepository {
             ['.jpeg', '.jpg', '.png'],
             1,
         );
+        // upload file
+        const remoteFileName = getCustomFilename(
+            `fish-${Date.now()}-${Math.round(Math.random() * 1e9)}`,
+            file,
+        );
+        let urlFileFoto = await this.gatewayService.uploadFile(file, remoteFileName, FolderBucketType.USER_PROFILE);
         try {
             // Start a transaction
             const transaction = await this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
