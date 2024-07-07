@@ -14,6 +14,7 @@ export enum TokenType {
 export enum FolderBucketType {
   FISH = 'FISH',
   USER_PROFILE = 'USER_PROFILE',
+  PRACTICE = 'PRACTICE',
 }
 export const _validateFile = (
   name: string,

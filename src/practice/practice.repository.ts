@@ -101,12 +101,7 @@ export class PracticeRepository {
             ['.jpeg', '.jpg', '.png'],
             1,
         );
-        // upload file
-        const remoteFileName = getCustomFilename(
-            `fish-${Date.now()}-${Math.round(Math.random() * 1e9)}`,
-            file,
-        );
-        let urlFileFoto = await this.gatewayService.uploadFile(file, remoteFileName, FolderBucketType.USER_PROFILE);
+
         try {
             // Start a transaction
             const transaction = await this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
@@ -119,6 +114,14 @@ export class PracticeRepository {
                 if (!user) {
                     throw new BadRequestException('User not found');
                 }
+
+                // upload file
+                const remoteFileName = getCustomFilename(
+                    `${user.username}-${Date.now()}-${Math.round(Math.random() * 1e9)}`,
+                    file,
+                );
+                await this.gatewayService.uploadFile(file, remoteFileName, FolderBucketType.PRACTICE);
+
                 // find practice
                 const practice = await tx.practice.findUnique({
                     where: {
