@@ -14,7 +14,7 @@ export class MailService {
         const { username, email, verificationLink } = dto
         return await this.mailerService.sendMail({
             to: email,
-            subject: 'Verifikasi Email FishSnap',
+            subject: 'Verifikasi Email SignEase',
             template: './verify-email',
             context: {
                 name: username,
@@ -29,7 +29,7 @@ export class MailService {
         const { username, email, resetLink } = dto
         return await this.mailerService.sendMail({
             to: email,
-            subject: 'Reset Password FishSnap',
+            subject: 'Reset Password SignEase',
             template: './reset-password',
             context: {
                 name: username,

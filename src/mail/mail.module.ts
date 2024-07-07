@@ -19,7 +19,7 @@ import { HelperModule } from '../helpers/helper.module';
                 }
             },
             defaults: {
-                from: '"Official FishSnap"',
+                from: '"Official SignEase"',
             },
             template: {
                 dir: join(__dirname, 'templates'),
